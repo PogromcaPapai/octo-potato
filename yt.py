@@ -1,3 +1,4 @@
+from genericpath import isfile
 from pyyoutube.error import PyYouTubeException
 
 import streamlit as st
@@ -20,8 +21,9 @@ def new_search(api: Api, q: str, amount: int):
         "part": None,
         'q':q,
         'type':'video',
-        'maxResults':amount
     }
+    if amount > 0:
+        args['maxResults'] = amount
 
     res_data = api.paged_by_page_token(resource="search", args=args, count=amount)
 
@@ -60,17 +62,18 @@ def get_comment_threads(api: Api, video: Video):
     ).items
 
 
-def get_comments(api: Api, thread: CommentThread, replies: bool) -> list[str]:
+def get_comments(api: Api, thread: CommentThread, collect_replies: bool) -> list[str]:
     first = thread.snippet.topLevelComment
     comments = [
         comment_format(first.snippet.authorDisplayName, first.snippet.textDisplay)
     ]
 
-    if replies and thread.replies:
+    if collect_replies and thread.replies:
         if thread.snippet.totalReplyCount > len(thread.replies.comments):
-            found = api.get_comments(
-                parent_id=first.id, text_format="plainText", count=None
-            ).items
+            with st.spinner(f"Pobieranie {thread.snippet.totalReplyCount} odpowiedzi"):
+                found = api.get_comments(
+                    parent_id=first.id, text_format="plainText", count=None
+                ).items
         else:
             # Jeżeli wszystkie odpowiedzi się zmieściły w threadzie, to nie wysyłamy nowego requestu
             found = thread.replies.comments
@@ -86,7 +89,7 @@ def get_comments(api: Api, thread: CommentThread, replies: bool) -> list[str]:
     return comments
 
 
-def download(search_term: str, replies: bool, amount: int):
+def download(search_term: str, collect_replies: bool, amount: int, omit: bool):
     api = Api(api_key=YT_KEY)
 
     try:
@@ -94,12 +97,19 @@ def download(search_term: str, replies: bool, amount: int):
         with st.spinner("Zbieranie wyników wyszukiwania"):
             result = find_videos(api, search_term, amount)
             vids = get_videos(api, result)
+            st.info(f"Znaleziono {len(vids)} filmów")
 
         with st.spinner("Zbieranie komentarzy i informacji o filmach"):
             progress_bar = st.progress(0 / len(vids))
             warns = []
+            omitted = 0
             for i, vid in enumerate(vids):
-
+                
+                # Pomijanie istniejących plików
+                if omit and isfile(f'yt/{search_term}/{vid.id}.xml'):
+                    omitted += 1
+                    continue
+                
                 # Zbieranie danych o wideo
                 url = get_video_url(vid)
                 official_count = get_comment_count(vid)
@@ -114,9 +124,9 @@ def download(search_term: str, replies: bool, amount: int):
                     continue
                 # Zbieranie i formatowanie komentarzy
                 comments = sum(
-                    (get_comments(api, thread, replies) for thread in threads.items), []
+                    (get_comments(api, thread, collect_replies) for thread in threads), []
                 )
-                if replies and len(comments) != official_count:
+                if collect_replies and len(comments) != official_count:
                     warns.append(
                         f"Dla wideo o ID {vid.id} odnaleziono {len(comments)} komentarzy, a system zadeklarował {official_count}"
                     )
@@ -125,7 +135,11 @@ def download(search_term: str, replies: bool, amount: int):
                 save_file(f'yt/{search_term}', vid.id, url, comments, official_count)
 
                 progress_bar.progress((i + 1) / len(vids))
-            st.warning("\n - ".join(["Ostrzeżenia:"] + warns))
+            
+        if omitted > 0:
+            warns.append(f"Program pominął {omitted} postów, gdyż ich pliki już istniały.")
+        if warns:
+            st.warning("\n - ".join(["**Ostrzeżenia**:"] + warns))
 
     except PyYouTubeException as e:
         if (
@@ -137,8 +151,9 @@ def download(search_term: str, replies: bool, amount: int):
             raise e
 
 if __name__=='__main__':
-    HASLO_WYSZUKIWANE = 'genshin'
+    HASLO_WYSZUKIWANE = ''
     CZY_UWZGLEDNIAC_ODPOWIEDZI = True
+    CZY_POMIJAC_ISTNIEJACE_PLIKI = True
     LICZBA_POSTOW = 100
     
-    download(HASLO_WYSZUKIWANE, CZY_UWZGLEDNIAC_ODPOWIEDZI, LICZBA_POSTOW)
+    download(HASLO_WYSZUKIWANE, CZY_UWZGLEDNIAC_ODPOWIEDZI, LICZBA_POSTOW, CZY_POMIJAC_ISTNIEJACE_PLIKI)
