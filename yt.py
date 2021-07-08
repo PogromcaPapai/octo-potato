@@ -16,14 +16,24 @@ from key import YT_KEY
 
 
 def new_search(api: Api, q: str, amount: int):
+    """
+    Funkcja wykonująca wyszukiwanie, oryginał z pyyoutube nie spełniał stawianych wymagań
 
-    args = {
-        "part": None,
-        'q':q,
-        'type':'video',
-    }
-    if amount > 0:
-        args['maxResults'] = amount
+    :param api: Obiekt API reprezentujący połączenie z YouTube API
+    :type api: Api
+    :param q: Zapytanie
+    :type q: str
+    :param amount: Liczba
+    :type amount: int
+    :return: [description]
+    :rtype: [type]
+    """
+    args = {"part": None, "q": q, "type": "video", "maxResults": amount}
+    if amount <= 0:
+        st.error(
+            "`pyyoutube` nie dopuszcza *zerowych ilości*, ale można wpisać absurdalnie wysoką wartość"
+        )
+        st.stop()
 
     res_data = api.paged_by_page_token(resource="search", args=args, count=amount)
 
@@ -39,6 +49,9 @@ def find_videos(api: Api, search_term: str, amount: int) -> list[SearchResult]:
 
 
 def get_videos(api: Api, results: SearchListResponse):
+    """
+    Zwraca filmy dla podanych wyników wyszukiwania
+    """
     return [
         api.get_video_by_id(video_id=i.id.videoId).items[0] for i in results.items
     ]  # ID powinno być zawsze unikalne
@@ -63,6 +76,18 @@ def get_comment_threads(api: Api, video: Video):
 
 
 def get_comments(api: Api, thread: CommentThread, collect_replies: bool) -> list[str]:
+    """
+    Pobiera komentarze w danym wątku
+
+    :param api: obiekt API reprezentujący połączenie
+    :type api: Api
+    :param thread: Wątek komentarzy
+    :type thread: CommentThread
+    :param collect_replies: Czy pobierać odpowiedzi na komentarze?
+    :type collect_replies: bool
+    :return: Lista sformatowanych komentarzy
+    :rtype: list[str]
+    """
     first = thread.snippet.topLevelComment
     comments = [
         comment_format(first.snippet.authorDisplayName, first.snippet.textDisplay)
@@ -90,6 +115,18 @@ def get_comments(api: Api, thread: CommentThread, collect_replies: bool) -> list
 
 
 def download(search_term: str, collect_replies: bool, amount: int, omit: bool):
+    """
+    Główna funkcja - wykonuje przeszukiwanie, a następnie iterując po postach zbiera i zapisuje sformatowane komentarze do pliku XML
+
+    :param search_term: Pojęcie do wyszukiwania
+    :type search_term: str
+    :param collect_replies: Czy pobierać odpowiedzi do komentarzy?
+    :type collect_replies: bool
+    :param amount: Liczba postów do pobrania, 0 pobiera wszystkie
+    :type amount: int
+    :param omit: Czy pomijać już pobrane dane?
+    :type omit: bool
+    """
     api = Api(api_key=YT_KEY)
 
     try:
@@ -104,12 +141,12 @@ def download(search_term: str, collect_replies: bool, amount: int, omit: bool):
             warns = []
             omitted = 0
             for i, vid in enumerate(vids):
-                
+
                 # Pomijanie istniejących plików
-                if omit and isfile(f'yt/{search_term}/{vid.id}.xml'):
+                if omit and isfile(f"yt/{search_term}/{vid.id}.xml"):
                     omitted += 1
                     continue
-                
+
                 # Zbieranie danych o wideo
                 url = get_video_url(vid)
                 official_count = get_comment_count(vid)
@@ -124,7 +161,8 @@ def download(search_term: str, collect_replies: bool, amount: int, omit: bool):
                     continue
                 # Zbieranie i formatowanie komentarzy
                 comments = sum(
-                    (get_comments(api, thread, collect_replies) for thread in threads), []
+                    (get_comments(api, thread, collect_replies) for thread in threads),
+                    [],
                 )
                 if collect_replies and len(comments) != official_count:
                     warns.append(
@@ -132,12 +170,14 @@ def download(search_term: str, collect_replies: bool, amount: int, omit: bool):
                     )
 
                 # Zapisywanie
-                save_file(f'yt/{search_term}', vid.id, url, comments, official_count)
+                save_file(f"yt/{search_term}", vid.id, url, comments, official_count)
 
                 progress_bar.progress((i + 1) / len(vids))
-            
+
         if omitted > 0:
-            warns.append(f"Program pominął {omitted} postów, gdyż ich pliki już istniały.")
+            warns.append(
+                f"Program pominął {omitted} postów, gdyż ich pliki już istniały."
+            )
         if warns:
             st.warning("\n - ".join(["**Ostrzeżenia**:"] + warns))
 
@@ -150,10 +190,17 @@ def download(search_term: str, collect_replies: bool, amount: int, omit: bool):
         else:
             raise e
 
-if __name__=='__main__':
-    HASLO_WYSZUKIWANE = ''
+
+# Wpisując w poniższe pola odpowiednie wartości i uruchamiając ten plik można korzystać z programu bez interfejsu
+if __name__ == "__main__":
+    HASLO_WYSZUKIWANE = ""
     CZY_UWZGLEDNIAC_ODPOWIEDZI = True
     CZY_POMIJAC_ISTNIEJACE_PLIKI = True
     LICZBA_POSTOW = 100
-    
-    download(HASLO_WYSZUKIWANE, CZY_UWZGLEDNIAC_ODPOWIEDZI, LICZBA_POSTOW, CZY_POMIJAC_ISTNIEJACE_PLIKI)
+
+    download(
+        HASLO_WYSZUKIWANE,
+        CZY_UWZGLEDNIAC_ODPOWIEDZI,
+        LICZBA_POSTOW,
+        CZY_POMIJAC_ISTNIEJACE_PLIKI,
+    )
