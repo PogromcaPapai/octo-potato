@@ -155,6 +155,7 @@ def download(search_term: str, collect_replies: bool, amount: int, omit: bool):
                 except PyYouTubeException as e:
                     if not e.message.endswith("has disabled comments."):
                         raise e
+                    save_file(f"yt/{search_term}", vid.id, url, [], official_count)
                     warns.append(f"Wideo o ID {vid.id} nie posiada komentarzy")
                     continue
                 # Zbieranie i formatowanie komentarzy
