@@ -40,7 +40,6 @@ def new_search(api: Api, q: str, amount: int):
     return SearchListResponse.from_dict(res_data)
 
 
-@st.cache
 def find_videos(api: Api, search_term: str, amount: int) -> list[SearchResult]:
     """
     Zbiera listę wszystkich wyników wyszukiwania na bazie podanego hasła
