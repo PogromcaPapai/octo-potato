@@ -64,7 +64,6 @@ def get_comment_count(vid: Video) -> int:
     return int(vid.statistics.commentCount) if vid.statistics.commentCount else 0
 
 
-@st.cache
 def get_comment_threads(api: Api, video: Video):
     """
     Zbiera listę wszystkich comment threads w danym filmie
