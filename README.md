@@ -23,9 +23,10 @@ Przepis:
    REDDIT_USER_AGENT = '[Twój Reddit User Agent]'
    ```
 
-3. Uruchom w linii komend (zakładam działanie na Windowsie) plik `install.bat` (wpisanie jego pełnej ścieżki wystarczy). Plik ten utworzy wirtualne środowisko i pobierze potrzebne biblioteki. Możliwa jest instalacja bezpośrednio na komputerze, do tego wystarczy wpisać w linii komend `python -m pip install -r install.txt` będąc w folderze repozytorium.
-4. Uruchom program plikiem `run.bat`.
-5. `yt.py` oraz `reddit.py` mogą być uruchamiane pomijając interfejs użytkownika, wymagane jest wtedy jednak aktywowanie wirtualnego środowiska (`.venv\Scripts\activate.bat`), bądź korzystanie z instalacji bespośrednio na komputerze
+3. Uruchom w linii komend (zakładam działanie na Windowsie) plik `install.bat` (wpisanie jego pełnej ścieżki wystarczy). Plik ten utworzy wirtualne środowisko i pobierze potrzebne biblioteki. Windows Defender może protestować, ale to fałszywy alarm. 
+4. Możliwa jest instalacja bezpośrednio na komputerze, do tego wystarczy wpisać w linii komend `python -m pip install -r install.txt` będąc w folderze repozytorium.
+5. Uruchom program plikiem `run.bat`.
+6. `yt.py` oraz `reddit.py` mogą być uruchamiane pomijając interfejs użytkownika, wymagane jest wtedy jednak aktywowanie wirtualnego środowiska (`.venv\Scripts\activate.bat`), bądź korzystanie z instalacji bespośrednio na komputerze
 
 ## Uwagi na temat działania programu
 
