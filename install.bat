@@ -1,4 +1,3 @@
 cd %cd%
 python -m venv .venv
-.venv\Scripts\activate.bat
-pip install -r install.txt
+.venv\Scripts\python.exe -m pip install -r install.txt

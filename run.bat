@@ -1,3 +1,2 @@
 cd %cd%
-.venv\Scripts\activate.bat
-streamlit run app.py
+.venv\Scripts\python.exe -m streamlit run app.py
