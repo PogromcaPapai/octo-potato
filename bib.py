@@ -2,24 +2,10 @@ from typing import Callable
 from os.path import isdir
 from os import mkdir
 
-
-def do_until_no_next(func: Callable, *args, **kwargs):
-    """
-    YT (jak w sumie wiele stron) wykorzystuje mechanizm dzielenia wyników na strony, aby umożliwić ich efektywne przesyłanie. 
-    Ta funkcja wykonuje wybrany request (funkcję func z arumentami args i kwargs) w taki sposób, aby zwrócić wszystkie strony w formie jednej dużej listy.
-    """
-    full = []
-    wyniki = func(*args, **kwargs)
-    full.extend(wyniki.items)
-    next_token = wyniki.nextPageToken
-    while next_token:
-        wyniki = func(*args, page_token=next_token, **kwargs)
-        full.extend(wyniki.items)
-        next_token = wyniki.nextPageToken
-    return wyniki
-
-
 def save_file(folder: str, name: str, url: str, comments: list[str], count: int):
+    """
+    Zapisuje plik do podanego folderu (tworząc go, jeśli nie istniał) pod określoną nazwą
+    """
     HEADER = f'<COSAR ROBOT="" DOH="" PORTAL="" PRESENTATION="" AUTHOR="" INTERACTION="" URL="{url}"> \n\tLiczba komentarzy pod materiałem = {count}\n\tLiczba komentarzy w pliku = {len(comments)}\n'
     FOOTER = '</COSAR>'
     
@@ -36,5 +22,6 @@ def save_file(folder: str, name: str, url: str, comments: list[str], count: int)
 
         
 def comment_format(author: str, text: str, reply_to: str = None) -> str:
+    """Funkcja używana do formatowania komentarzy"""
     rep = f", in reply to {reply_to}" if reply_to else ""
     return f"{author}{rep}: \n{text}"

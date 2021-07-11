@@ -16,11 +16,3 @@ if switch == "YouTube":
     st.button("Pobierz", on_click=yt.download, args=(search, replies, amount, omit))
 elif switch == "Reddit":
     st.button("Pobierz", on_click=reddit.download, args=(search, replies, amount, omit))
-
-"""
-> Finally, note that the value of submission.num_comments may not match up 100% with the number of comments extracted via PRAW.
-> This discrepancy is normal as that count includes deleted, removed, and spam comments.
-> ~ Dokumentacja PRAW
-
-Podobnie YouTube może czasem mieć podobne problemy, informacje o takich filmach zawarte są w ostrzeżeniach
-"""
