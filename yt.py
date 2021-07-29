@@ -44,7 +44,7 @@ def find_videos(api: Api, search_term: str, amount: int, order_by_views: bool) -
     """
     Zbiera listę wszystkich wyników wyszukiwania na bazie podanego hasła
     """
-    return new_search(api, q=f'allintitle:"{search_term}"', amount=amount, order_by_views=order_by_views)
+    return new_search(api, q=search_term, amount=amount, order_by_views=order_by_views)
 
 
 def get_videos(api: Api, results: SearchListResponse):
@@ -112,7 +112,7 @@ def get_comments(api: Api, thread: CommentThread, collect_replies: bool) -> list
     return comments
 
 
-def download(search_term: str, collect_replies: bool, amount: int, omit: bool, order_by_views: bool):
+def download(search_term: str, collect_replies: bool, amount: int, omit: bool, order_by_views: bool, only_title: bool):
     """
     Główna funkcja - wykonuje przeszukiwanie, a następnie iterując po postach zbiera i zapisuje sformatowane komentarze do pliku XML
 
@@ -130,7 +130,8 @@ def download(search_term: str, collect_replies: bool, amount: int, omit: bool, o
     try:
 
         with st.spinner("Zbieranie wyników wyszukiwania"):
-            result = find_videos(api, search_term, amount, order_by_views)
+            q = f'allintitle:"{search_term}"' if only_title else search_term
+            result = find_videos(api, q, amount, order_by_views)
             vids = get_videos(api, result)
             st.info(f"Znaleziono {len(vids)} filmów")
 
@@ -197,11 +198,13 @@ if __name__ == "__main__":
     CZY_POMIJAC_ISTNIEJACE_PLIKI = True
     LICZBA_POSTOW = 100
     ORDER_BY_VIEWS = True
+    ONLY_TITLE = False
 
     download(
         HASLO_WYSZUKIWANE,
         CZY_UWZGLEDNIAC_ODPOWIEDZI,
         LICZBA_POSTOW,
         CZY_POMIJAC_ISTNIEJACE_PLIKI,
-        ORDER_BY_VIEWS
+        ORDER_BY_VIEWS,
+        ONLY_TITLE
     )

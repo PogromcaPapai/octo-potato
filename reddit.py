@@ -53,7 +53,7 @@ def get_comments(post: praw.models.Submission, collect_replies: bool) -> list[st
     return formatted_comments
 
 
-def download(search_term: str, collect_replies: bool, amount: int, omit: bool, order_by_comms: bool):
+def download(search_term: str, collect_replies: bool, amount: int, omit: bool, order_by_comms: bool, only_title: bool):
     """
     Główna funkcja - wykonuje przeszukiwanie, a następnie iterując po postach zbiera i zapisuje sformatowane komentarze do pliku XML
 
@@ -67,7 +67,7 @@ def download(search_term: str, collect_replies: bool, amount: int, omit: bool, o
     :type omit: bool
     """
     sort = 'comments' if order_by_comms else 'relevance'
-    new_search = f'title:{search_term}'
+    new_search = f'title:{search_term}' if only_title else search_term
     with st.spinner("Zbieranie wyników wyszukiwania"):
         if amount > 0:
             posts = r_all.search(new_search, limit=amount, sort=sort)
@@ -116,12 +116,14 @@ if __name__ == "__main__":
     CZY_UWZGLEDNIAC_ODPOWIEDZI = True
     CZY_POMIJAC_ISTNIEJACE_PLIKI = True
     LICZBA_POSTOW = 100
-    ORDER_BY_COMMS = True
+    ORDER_BY_VIEWS = True
+    ONLY_TITLE = False
 
     download(
         HASLO_WYSZUKIWANE,
         CZY_UWZGLEDNIAC_ODPOWIEDZI,
         LICZBA_POSTOW,
         CZY_POMIJAC_ISTNIEJACE_PLIKI,
-        ORDER_BY_COMMS
+        ORDER_BY_VIEWS,
+        ONLY_TITLE
     )
