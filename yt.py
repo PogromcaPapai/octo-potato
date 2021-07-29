@@ -15,7 +15,7 @@ from bib import *
 from key import YT_KEY
 
 
-def new_search(api: Api, q: str, amount: int):
+def new_search(api: Api, q: str, amount: int, order_by_views: bool):
     """
     Funkcja wykonująca wyszukiwanie, oryginał z pyyoutube nie spełniał stawianych wymagań
 
@@ -25,10 +25,10 @@ def new_search(api: Api, q: str, amount: int):
     :type q: str
     :param amount: Liczba
     :type amount: int
-    :return: [description]
-    :rtype: [type]
     """
     args = {"part": None, "q": q, "type": "video", "maxResults": amount}
+    if order_by_views:
+        args['order'] = 'viewCount'
     if amount <= 0:
         st.error(
             "`pyyoutube` nie dopuszcza *zerowych ilości*, ale można wpisać absurdalnie wysoką wartość"
@@ -40,11 +40,11 @@ def new_search(api: Api, q: str, amount: int):
     return SearchListResponse.from_dict(res_data)
 
 
-def find_videos(api: Api, search_term: str, amount: int) -> list[SearchResult]:
+def find_videos(api: Api, search_term: str, amount: int, order_by_views: bool) -> list[SearchResult]:
     """
     Zbiera listę wszystkich wyników wyszukiwania na bazie podanego hasła
     """
-    return new_search(api, q=search_term, amount=amount)
+    return new_search(api, q=f'allintitle:"{search_term}"', amount=amount, order_by_views=order_by_views)
 
 
 def get_videos(api: Api, results: SearchListResponse):
@@ -112,7 +112,7 @@ def get_comments(api: Api, thread: CommentThread, collect_replies: bool) -> list
     return comments
 
 
-def download(search_term: str, collect_replies: bool, amount: int, omit: bool):
+def download(search_term: str, collect_replies: bool, amount: int, omit: bool, order_by_views: bool):
     """
     Główna funkcja - wykonuje przeszukiwanie, a następnie iterując po postach zbiera i zapisuje sformatowane komentarze do pliku XML
 
@@ -130,7 +130,7 @@ def download(search_term: str, collect_replies: bool, amount: int, omit: bool):
     try:
 
         with st.spinner("Zbieranie wyników wyszukiwania"):
-            result = find_videos(api, search_term, amount)
+            result = find_videos(api, search_term, amount, order_by_views)
             vids = get_videos(api, result)
             st.info(f"Znaleziono {len(vids)} filmów")
 
@@ -196,10 +196,12 @@ if __name__ == "__main__":
     CZY_UWZGLEDNIAC_ODPOWIEDZI = True
     CZY_POMIJAC_ISTNIEJACE_PLIKI = True
     LICZBA_POSTOW = 100
+    ORDER_BY_VIEWS = True
 
     download(
         HASLO_WYSZUKIWANE,
         CZY_UWZGLEDNIAC_ODPOWIEDZI,
         LICZBA_POSTOW,
         CZY_POMIJAC_ISTNIEJACE_PLIKI,
+        ORDER_BY_VIEWS
     )

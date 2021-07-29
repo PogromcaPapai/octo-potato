@@ -13,6 +13,8 @@ omit = st.checkbox("Pomijać istniejące pliki")
 
 # Przycisk
 if switch == "YouTube":
-    st.button("Pobierz", on_click=yt.download, args=(search, replies, amount, omit))
+    sort = st.checkbox("Sortować według liczby wyświetleń (youtube)")
+    st.button("Pobierz", on_click=yt.download, args=(search, replies, amount, omit, sort))
 elif switch == "Reddit":
-    st.button("Pobierz", on_click=reddit.download, args=(search, replies, amount, omit))
+    sort = st.checkbox("Sortować według liczby komentarzy (reddit)")
+    st.button("Pobierz", on_click=reddit.download, args=(search, replies, amount, omit, sort))
