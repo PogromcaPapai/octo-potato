@@ -67,7 +67,7 @@ def download(search_term: str, collect_replies: bool, amount: int, omit: bool, o
     :type omit: bool
     """
     sort = 'comments' if order_by_comms else 'relevance'
-    new_search = f'title:{search_term}' if only_title else search_term
+    new_search = f'title:"{search_term}"' if only_title else search_term
     with st.spinner("Zbieranie wyników wyszukiwania"):
         if amount > 0:
             posts = r_all.search(new_search, limit=amount, sort=sort)
