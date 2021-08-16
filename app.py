@@ -5,7 +5,7 @@ import streamlit as st
 # Interfejs
 st.title("Danozbieracz")
 switch = st.selectbox("Z jakiej strony zbierać?", ["YouTube", "Reddit"])
-search = st.text_input("Robot do wyszukania") + " robot"
+search = st.text_input("Robot do wyszukania") + " robot"*st.checkbox("Dodaj 'robot' na koniec nazwy", value=True)
 amount = st.number_input("Ilość pobieranych wyników (Podaj 0, aby pobrać wszystkie - działa tylko dla reddita)", min_value=0)
 replies = st.checkbox("Pobierać z odpowiedziami")
 omit = st.checkbox("Pomijać istniejące pliki")
