@@ -45,6 +45,7 @@ def get_comments(post: praw.models.Submission, collect_replies: bool) -> list[st
     :rtype: list[str]
     """
     formatted_comments = []
+    post.comment_sort = 'new'
     post.comments.replace_more(limit=0)
     for comm in post.comments:
         formatted_comments.append(comment_format(comm.author, comm.body))
