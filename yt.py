@@ -112,7 +112,7 @@ def get_comments(api: Api, thread: CommentThread, collect_replies: bool) -> list
     return comments
 
 
-def download(search_term: str, collect_replies: bool, amount: int, omit: bool, order_by_views: bool, only_title: bool):
+def download(search_term: str, collect_replies: bool, amount: int, omit: bool, order_by_views: bool, only_title: bool, use_json: bool):
     """
     Główna funkcja - wykonuje przeszukiwanie, a następnie iterując po postach zbiera i zapisuje sformatowane komentarze do pliku XML
 
@@ -170,7 +170,7 @@ def download(search_term: str, collect_replies: bool, amount: int, omit: bool, o
                     )
 
                 # Zapisywanie
-                save_file(f"yt/{search_term}", vid.id, url, comments, official_count)
+                save_file(f"yt/{search_term}", vid.id, url, comments, official_count, use_json)
 
                 progress_bar.progress((i + 1) / len(vids))
 
@@ -206,5 +206,6 @@ if __name__ == "__main__":
         LICZBA_POSTOW,
         CZY_POMIJAC_ISTNIEJACE_PLIKI,
         ORDER_BY_VIEWS,
-        ONLY_TITLE
+        ONLY_TITLE,
+        False
     )

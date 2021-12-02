@@ -54,7 +54,7 @@ def get_comments(post: praw.models.Submission, collect_replies: bool) -> list[st
     return formatted_comments
 
 
-def download(search_term: str, collect_replies: bool, amount: int, omit: bool, order_by_comms: bool, only_title: bool):
+def download(search_term: str, collect_replies: bool, amount: int, omit: bool, order_by_comms: bool, only_title: bool, use_json: bool):
     """
     Główna funkcja - wykonuje przeszukiwanie, a następnie iterując po postach zbiera i zapisuje sformatowane komentarze do pliku XML
 
@@ -100,7 +100,7 @@ def download(search_term: str, collect_replies: bool, amount: int, omit: bool, o
                 )
 
             # Zapisywanie
-            save_file(f"reddit/{search_term}", post_id, url, comments, official_count)
+            save_file(f"reddit/{search_term}", post_id, url, comments, official_count, use_json)
 
             progress_bar.progress((i + 1) / amount)
 
@@ -126,5 +126,6 @@ if __name__ == "__main__":
         LICZBA_POSTOW,
         CZY_POMIJAC_ISTNIEJACE_PLIKI,
         ORDER_BY_VIEWS,
-        ONLY_TITLE
+        ONLY_TITLE,
+        False
     )
